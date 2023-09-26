@@ -5,20 +5,38 @@ import { AiOutlineMenu } from "react-icons/ai";
 import Avatar from "../Avatar";
 import MenuItem from "./MenuItem";
 import useRegisterModal from "@/app/hooks/useRegisterModal";
+import useLoginModal from "@/app/hooks/useLoginModal";
+import { signOut } from "next-auth/react";
+import { SafeUser } from "@/app/types";
+import useRentModal from "@/app/hooks/useRentModal";
 
-const UserMenu = () => {
+interface UserMenu {
+  currentUser?: SafeUser | null;
+}
+
+const UserMenu: React.FC<UserMenu> = ({ currentUser }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const modalRegister = useRegisterModal();
+  const loginModal = useLoginModal();
+  const rentModal = useRentModal();
 
   const toggleOpen = useCallback(() => {
     setIsOpen((prevIsOpen) => !prevIsOpen);
   }, []);
 
+  const onRent = useCallback(() => {
+    if (!currentUser) {
+      return loginModal.onOpen();
+    }
+
+    // TODO: open rent modal
+    rentModal.onOpen();
+  }, [currentUser, loginModal, rentModal]);
+
   return (
     <div className="relative">
       <div className="flex flex-row items-center gap-3">
         <div
-          onClick={() => {}}
+          onClick={onRent}
           className="hidden md:block text-sm font-semibold py-3 px-4 rounded-full hover:bg-neutral-100 transition cursor-pointer"
         >
           Airbnb your home
@@ -29,7 +47,7 @@ const UserMenu = () => {
         >
           <AiOutlineMenu />
           <div className="hidden md:block">
-            <Avatar />
+            <Avatar src={currentUser?.image} />
           </div>
         </div>
       </div>
@@ -37,13 +55,43 @@ const UserMenu = () => {
         <div className="absolute rounded-xl shadow-md w-[400vw] md:w-3/4 bg-white overflow-hidden right-0 top-12 text-sm">
           <div className="flex flex-col cursor-pointer">
             <>
-              <MenuItem onClick={() => {}} label="Log in" />
-              <MenuItem onClick={modalRegister.onOpen} label="Sign up" />
+              {currentUser ? (
+                <MenuWithCurrentUser />
+              ) : (
+                <MenuWithOutCurrentUser />
+              )}
             </>
           </div>
         </div>
       )}
     </div>
+  );
+};
+
+const MenuWithCurrentUser = () => {
+  const rentModal = useRentModal();
+  return (
+    <>
+      <MenuItem onClick={() => {}} label="My trips" />
+      <MenuItem onClick={() => {}} label="My favorites" />
+      <MenuItem onClick={() => {}} label="My reservations" />
+      <MenuItem onClick={() => {}} label="My properties" />
+      <MenuItem onClick={rentModal.onOpen} label="Airbnb my home" />
+      <hr />
+      <MenuItem onClick={signOut} label="Log Out" />
+    </>
+  );
+};
+
+const MenuWithOutCurrentUser = () => {
+  const modalLogin = useLoginModal();
+  const modalRegister = useRegisterModal();
+
+  return (
+    <>
+      <MenuItem onClick={modalLogin.onOpen} label="Log in" />
+      <MenuItem onClick={modalRegister.onOpen} label="Sign up" />
+    </>
   );
 };
 
