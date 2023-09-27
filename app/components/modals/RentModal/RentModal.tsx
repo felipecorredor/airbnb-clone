@@ -8,6 +8,14 @@ import { FieldValues, useForm } from "react-hook-form";
 
 import BodyContentCategory from "./BodyContent/BodyContentCategory";
 import BodyContentLocation from "./BodyContent/BodyContentLocation";
+import BodyContentInfo from "./BodyContent/BodyContentInfo";
+import { CountrySelectValue } from "../../inputs/CountrySelect";
+import BodyContentImages from "./BodyContent/BodyContentImages";
+import BodyContentDescription from "./BodyContent/BodyContentDescription";
+import BodyContentPrice from "./BodyContent/BodyContentPrice";
+import axios from "axios";
+import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
 enum STEPS {
   CATEGORY = 0,
@@ -40,7 +48,9 @@ const DEFAULT_VALUES = {
 };
 
 const RentModal = () => {
+  const router = useRouter();
   const rentModal = useRentModal();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const [step, setStep] = useState<STEPS>(STEPS.CATEGORY);
 
@@ -55,15 +65,34 @@ const RentModal = () => {
     defaultValues: DEFAULT_VALUES,
   });
 
-  const watchCategory = watch("category");
-  const watchLocation = watch("location");
-
   const onBack = () => {
     setStep((value) => value - 1);
   };
 
   const onNext = () => {
     setStep((value) => value + 1);
+  };
+
+  const onSubmit = async (data: FieldValues) => {
+    if (step !== STEPS.PRICE) {
+      return onNext();
+    }
+    setIsLoading(true);
+
+    try {
+      const response = await axios.post("/api/listings", data);
+      if (response.statusText === "OK") {
+        toast.success("Listing Created!");
+        router.refresh();
+        reset();
+        setStep(STEPS.CATEGORY);
+        rentModal.onClose();
+      }
+    } catch (error) {
+      toast.error("something went wrong.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const actionLabel = useMemo(() => {
@@ -87,7 +116,10 @@ const RentModal = () => {
     [step]
   );
 
-  const setCustomValue = (id: string, value: string) => {
+  const setCustomValue = (
+    id: string,
+    value: string | number | CountrySelectValue
+  ) => {
     setValue(id, value, {
       shouldDirty: true,
       shouldTouch: true,
@@ -97,21 +129,31 @@ const RentModal = () => {
 
   const componentsByStep: ComponentMap = {
     [STEPS.CATEGORY]: (
-      <BodyContentCategory
-        watchCategory={watchCategory}
-        setCustomValue={setCustomValue}
-      />
+      <BodyContentCategory watch={watch} setCustomValue={setCustomValue} />
     ),
     [STEPS.LOCATION]: (
-      <BodyContentLocation
-        watchLocation={watchLocation}
-        setCustomValue={setCustomValue}
+      <BodyContentLocation watch={watch} setCustomValue={setCustomValue} />
+    ),
+    [STEPS.INFO]: (
+      <BodyContentInfo watch={watch} setCustomValue={setCustomValue} />
+    ),
+    [STEPS.IMAGES]: (
+      <BodyContentImages watch={watch} setCustomValue={setCustomValue} />
+    ),
+    [STEPS.DESCRIPTION]: (
+      <BodyContentDescription
+        register={register}
+        errors={errors}
+        isLoading={isLoading}
       />
     ),
-    [STEPS.INFO]: <div>INFO</div>,
-    [STEPS.IMAGES]: <div>IMAGES</div>,
-    [STEPS.DESCRIPTION]: <div>DESCRIPTION</div>,
-    [STEPS.PRICE]: <div>PRICE</div>,
+    [STEPS.PRICE]: (
+      <BodyContentPrice
+        register={register}
+        errors={errors}
+        isLoading={isLoading}
+      />
+    ),
   };
 
   const bodyContent = componentsByStep[step];
@@ -121,7 +163,7 @@ const RentModal = () => {
       title="Airbnb your home!"
       isOpen={rentModal.isOpen}
       onClose={rentModal.onClose}
-      onSubmit={onNext}
+      onSubmit={handleSubmit(onSubmit)}
       actionLabel={actionLabel}
       secondaryActionLabel={secondaryActionLabel}
       secondaryAction={isSecondaryAction}

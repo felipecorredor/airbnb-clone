@@ -7,16 +7,19 @@ import CountrySelect, {
 } from "@/app/components/inputs/CountrySelect";
 import dynamic from "next/dynamic";
 import React, { useMemo } from "react";
+import { FieldValues, UseFormWatch } from "react-hook-form";
 
 interface BodyContentLocationProps {
-  watchLocation: CountrySelectValue;
-  setCustomValue: (id: string, label: string) => void;
+  watch: UseFormWatch<FieldValues>;
+  setCustomValue: (id: string, label: CountrySelectValue) => void;
 }
 
 const BodyContentLocation: React.FC<BodyContentLocationProps> = ({
-  watchLocation,
+  watch,
   setCustomValue,
 }) => {
+  const watchLocation = watch("location");
+
   const Map = useMemo(
     () => dynamic(() => import("@/app/components/Map"), { ssr: false }),
     // eslint-disable-next-line react-hooks/exhaustive-deps

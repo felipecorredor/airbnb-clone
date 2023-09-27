@@ -40,24 +40,19 @@ const LoginModal = () => {
     signIn("credentials", {
       ...data,
       redirect: false,
-    })
-      .then((callback) => {
-        if (callback?.ok) {
-          toast.success("Logged in");
-          router.refresh();
-          loginModal.onClose();
-        }
+    }).then((callback) => {
+      setIsLoading(false);
 
-        if (callback?.error) {
-          toast.error(callback.error);
-        }
-      })
-      .catch((error) => {
-        toast.error(error.message);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
+      if (callback?.ok) {
+        toast.success("Logged in");
+        router.refresh();
+        loginModal.onClose();
+      }
+
+      if (callback?.error) {
+        toast.error(callback.error);
+      }
+    });
   };
 
   return (
