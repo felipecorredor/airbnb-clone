@@ -1,12 +1,16 @@
-import Image from "next/image";
 import ClientOnly from "./components/ClientOnly";
 import Container from "./components/Container";
 import EmptyState from "./components/EmptyState";
+import { getListings } from "./actions/getListings";
+import ListingCard from "./components/listings/ListingCard";
+import { getCurrentUser } from "./actions/getCurrentUser";
+import { SafeListing, SafeUser } from "./types";
 
-export default function Home() {
-  const isEmpty = true;
+export default async function Home() {
+  const listings = (await getListings()) as SafeListing[];
+  const currentUser = (await getCurrentUser()) as SafeUser;
 
-  if (isEmpty) {
+  if (!listings.length) {
     return (
       <ClientOnly>
         <EmptyState showReset />
@@ -29,7 +33,15 @@ export default function Home() {
             2xl:grid-cols-6 
             gap-8"
         >
-          <div>My future listings</div>
+          {listings.map((listing: SafeListing) => {
+            return (
+              <ListingCard
+                key={listing.id}
+                currentUser={currentUser}
+                data={listing}
+              />
+            );
+          })}
         </div>
       </Container>
     </ClientOnly>
