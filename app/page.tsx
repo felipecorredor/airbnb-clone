@@ -1,13 +1,17 @@
 import ClientOnly from "./components/ClientOnly";
 import Container from "./components/Container";
 import EmptyState from "./components/EmptyState";
-import { getListings } from "./actions/getListings";
+import { IListingParams, getListings } from "./actions/getListings";
 import ListingCard from "./components/listings/ListingCard";
 import { getCurrentUser } from "./actions/getCurrentUser";
 import { SafeListing, SafeUser } from "./types";
 
-export default async function Home() {
-  const listings = (await getListings()) as SafeListing[];
+interface HomeProps {
+  searchParams: IListingParams;
+}
+
+const Home: React.FC<HomeProps> = async ({ searchParams }) => {
+  const listings = (await getListings(searchParams)) as SafeListing[];
   const currentUser = (await getCurrentUser()) as SafeUser;
 
   if (!listings.length) {
@@ -46,4 +50,6 @@ export default async function Home() {
       </Container>
     </ClientOnly>
   );
-}
+};
+
+export default Home;

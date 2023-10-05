@@ -13,6 +13,7 @@ import Modal from "../Modal";
 
 import BodyContent from "./BodyContent";
 import FooterContent from "./FooterContent";
+import useLoginModal from "@/app/hooks/useLoginModal";
 
 const DEFAULT_VALUES = {
   name: "",
@@ -22,6 +23,7 @@ const DEFAULT_VALUES = {
 
 const RegisterModal = () => {
   const registerModal = useRegisterModal();
+  const loginModal = useLoginModal();
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const {
@@ -40,6 +42,7 @@ const RegisterModal = () => {
       .then(() => {
         toast.success("Registered");
         registerModal.onClose();
+        loginModal.onOpen();
       })
       .catch((error) => {
         toast.error(error.message);

@@ -7,10 +7,14 @@ interface IParams {
   authorId?: string;
 }
 
+interface Query extends IParams {
+  listing?: { userId: any };
+}
+
 export const getReservations = async (params: IParams) => {
   try {
     const { listingId, userId, authorId } = params;
-    const query: any = {};
+    let query: Query = {};
 
     if (listingId) {
       query.listingId = listingId;
