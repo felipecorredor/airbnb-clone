@@ -23,12 +23,9 @@ const CategoryBox: React.FC<CategoryBox> = ({
   const handleClick = useCallback(() => {
     let currentQuery = {};
 
-    console.log("params::", params);
     if (params) {
       currentQuery = qs.parse(params.toString());
     }
-
-    console.log("currentQuery::", currentQuery);
 
     const updateQuery: any = {
       ...currentQuery,

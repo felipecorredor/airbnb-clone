@@ -5,8 +5,6 @@ import { IconType } from "react-icons";
 import Avatar from "../Avatar";
 import ListingCategory from "./ListingCategory";
 import dynamic from "next/dynamic";
-import { BiMap } from "react-icons/bi";
-import { BsChatLeftTextFill } from "react-icons/bs";
 
 const Map = dynamic(() => import("../Map"));
 
@@ -36,7 +34,8 @@ const ListingInfo: React.FC<ListingInfoProps> = ({
   locationValue,
 }) => {
   const { getByValue } = useCountries();
-  const coordinates = getByValue(locationValue)?.latlng;
+  const location = getByValue(locationValue);
+  const coordinates = location?.latlng;
 
   return (
     <div className="col-span-4 flex flex-col gap-8">
@@ -60,23 +59,29 @@ const ListingInfo: React.FC<ListingInfoProps> = ({
         />
       )}
       <hr />
-      <div className="flex flex-row gap-4 items-center">
-        <BsChatLeftTextFill size={35} className="text-neutral-600" />
-        <div className="flex flex-col">
-          <div className="text-lg font-semibold">Description</div>
-          <div className="text-lg font-light text-neutral-500">
-            {description}
-          </div>
-        </div>
+
+      <div className="flex flex-col">
+        <div className="text-lg font-semibold">Description</div>
+        <div className="text-lg font-light text-neutral-500">{description}</div>
       </div>
+
       <hr />
-      <div className="flex flex-row gap-4 items-center">
-        <BiMap size={40} className="text-neutral-600" />
+
+      <div className="flex flex-col">
         <div className="text-lg font-semibold">Location</div>
+        <div className="flex flex-row gap-2">
+          <LocationText>{location?.flag}</LocationText>
+          <LocationText>{location?.region}</LocationText>
+          <LocationText>{location?.label}</LocationText>
+        </div>
+        <Map center={coordinates} />
       </div>
-      <Map center={coordinates} />
     </div>
   );
 };
+
+const LocationText = ({ children }: any) => (
+  <div className="text-lg font-light text-neutral-500">{children}</div>
+);
 
 export default ListingInfo;

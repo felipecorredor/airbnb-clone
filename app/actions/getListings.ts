@@ -1,19 +1,68 @@
 import prisma from "@/app/libs/prismadb";
-
-export interface IListingParams {
-  userId?: string;
-}
-
-interface Query extends IListingParams {}
+import { IListingParams, QueryListing } from "./@types/getListings";
 
 export const getListings = async (params: IListingParams) => {
   try {
-    const { userId } = params;
+    const {
+      userId,
+      guestCount,
+      roomCount,
+      bathroomCount,
+      startDate,
+      endDate,
+      locationValue,
+      category,
+    } = params;
 
-    let query: Query = {};
+    let query: QueryListing = {};
 
     if (userId) {
       query.userId = userId;
+    }
+
+    if (category) {
+      query.category = category;
+    }
+
+    if (roomCount) {
+      query.roomCount = {
+        gte: +roomCount,
+      };
+    }
+
+    if (guestCount) {
+      query.guestCount = {
+        gte: +guestCount,
+      };
+    }
+
+    if (bathroomCount) {
+      query.bathroomCount = {
+        gte: +bathroomCount,
+      };
+    }
+
+    if (locationValue) {
+      query.locationValue = locationValue;
+    }
+
+    if (startDate && endDate) {
+      query.NOT = {
+        reservations: {
+          some: {
+            OR: [
+              {
+                endDate: { gte: startDate },
+                startDate: { lte: startDate },
+              },
+              {
+                startDate: { lte: endDate },
+                endDate: { gte: endDate },
+              },
+            ],
+          },
+        },
+      };
     }
 
     const listings = prisma.listing.findMany({
