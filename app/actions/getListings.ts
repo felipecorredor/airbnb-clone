@@ -65,14 +65,14 @@ export const getListings = async (params: IListingParams) => {
       };
     }
 
-    const listings = prisma.listing.findMany({
+    const listings = await prisma.listing.findMany({
       where: query,
       orderBy: {
         createdAt: "desc",
       },
     });
 
-    const safeListings = (await listings).map((listing) => ({
+    const safeListings = listings.map((listing) => ({
       ...listing,
       createdAt: listing.createdAt.toISOString(),
     }));
