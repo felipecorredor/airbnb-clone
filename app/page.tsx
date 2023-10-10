@@ -11,7 +11,7 @@ interface HomeProps {
   searchParams: IListingParams;
 }
 
-const Home: React.FC<HomeProps> = async ({ searchParams }) => {
+const Home = async ({ searchParams }: HomeProps) => {
   const listings = (await getListings(searchParams)) as SafeListing[];
   const currentUser = (await getCurrentUser()) as SafeUser;
 
