@@ -29,7 +29,6 @@ const UserMenu: React.FC<UserMenu> = ({ currentUser }) => {
       return loginModal.onOpen();
     }
 
-    // TODO: open rent modal
     rentModal.onOpen();
   }, [currentUser, loginModal, rentModal]);
 
